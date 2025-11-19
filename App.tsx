@@ -22,8 +22,8 @@ export default function App() {
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.IDLE);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // New State: Difficulty
-  const [difficulty, setDifficulty] = useState<DifficultyLevel>('hard');
+  // New State: Difficulty (Default to Easy)
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>('easy');
   
   // New State: Has User Interacted? (For Audio Context)
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -34,6 +34,7 @@ export default function App() {
 
   // Initialize Game
   const startGame = useCallback(() => {
+    // Only play click sound if game has started/user interacted to avoid autoplay blocks
     if (hasInteracted) {
         playSFX('click');
     }
@@ -69,19 +70,34 @@ export default function App() {
     setScore(0);
     setMoves(0);
     setIsProcessing(false);
-  }, [difficulty]);
+  }, [difficulty, hasInteracted]); // Added hasInteracted to dependency array
 
   // Restart when difficulty changes
   useEffect(() => {
     startGame();
   }, [startGame]);
 
-  // Initial Start Screen Handler
-  const handleStartGame = async () => {
-    await resumeAudioContext();
-    setHasInteracted(true);
-    playSFX('click');
-  };
+  // Unlock AudioContext on first user interaction anywhere
+  useEffect(() => {
+    const unlockAudio = () => {
+      resumeAudioContext();
+      setHasInteracted(true);
+      // Remove listeners once unlocked
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+
+    window.addEventListener('click', unlockAudio);
+    window.addEventListener('touchstart', unlockAudio);
+    window.addEventListener('keydown', unlockAudio);
+
+    return () => {
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, []);
 
   const handleTileClick = async (clickedTile: TileType) => {
     // Block interaction if processing or invalid tile
@@ -90,6 +106,9 @@ export default function App() {
       clickedTile.isMatched || 
       clickedTile.isSelected
     ) return;
+
+    // Force resume audio context on every click just in case
+    await resumeAudioContext();
 
     // 1. IMMEDIATE VISUAL FEEDBACK
     // Update state first to ensure React reacts instantly
