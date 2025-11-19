@@ -12,7 +12,7 @@ export const Tile: React.FC<TileProps> = ({ tile, colorDef, onClick }) => {
   const isRevealed = tile.isSelected || tile.isMatched;
 
   // Match logic: stay visible but slightly faded to show completion
-  const matchedStyle = tile.isMatched ? "opacity-60 cursor-default" : "opacity-100 cursor-pointer active:scale-90";
+  const matchedStyle = tile.isMatched ? "opacity-60 cursor-default" : "opacity-100 cursor-pointer active:scale-95";
 
   return (
     <div 
@@ -43,17 +43,24 @@ export const Tile: React.FC<TileProps> = ({ tile, colorDef, onClick }) => {
 
         {/* Card Front (Face Up / Color) */}
         <div 
-          className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-[2rem] shadow-[0_6px_0_rgba(0,0,0,0.1)] overflow-hidden border-4 border-white"
+          className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-[2rem] shadow-[0_6px_0_rgba(0,0,0,0.1)] overflow-hidden border-4 border-white relative"
           style={{ backgroundColor: colorDef.hex }}
         >
-          {/* Glossy Reflection */}
-          <div className="absolute top-3 left-3 right-3 h-1/3 bg-white opacity-30 rounded-t-2xl pointer-events-none" />
+          {/* Optimized Natural Highlight */}
+          {/* Top curved gloss with gradient fade */}
+          <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-[rgba(255,255,255,0.4)] to-transparent rounded-t-[1.5rem] pointer-events-none" />
           
-          <div className="absolute inset-0 flex items-center justify-center">
+          {/* Subtle rim light at the bottom for 3D volume feel */}
+          <div className="absolute bottom-0 left-4 right-4 h-[20%] bg-gradient-to-t from-[rgba(0,0,0,0.1)] to-transparent rounded-b-[1.5rem] pointer-events-none" />
+
+          {/* Small crisp highlight ellipse for "plastic" feel */}
+          <div className="absolute top-3 right-3 w-3 h-2 bg-white opacity-40 rounded-full transform rotate-[-20deg] blur-[1px] pointer-events-none" />
+          
+          <div className="absolute inset-0 flex items-center justify-center z-10">
             <span 
               className={`
                 font-black text-xl sm:text-2xl tracking-wide
-                ${colorDef.textColor} drop-shadow-md select-none
+                ${colorDef.textColor} drop-shadow-[0_2px_2px_rgba(0,0,0,0.2)] select-none
               `}
             >
               {colorDef.name}

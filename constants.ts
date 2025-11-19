@@ -1,4 +1,4 @@
-import { ColorDefinition } from './types';
+import { ColorDefinition, DifficultyLevel } from './types';
 
 export const COLORS: ColorDefinition[] = [
   { id: 'red', name: 'Red', hex: '#EF4444', textColor: 'text-white' },
@@ -15,5 +15,23 @@ export const COLORS: ColorDefinition[] = [
   { id: 'gray', name: 'Gray', hex: '#6B7280', textColor: 'text-white' },
 ];
 
-// 12 pairs = 24 tiles (4x6 grid), perfect for mobile/tablet
-export const GRID_SIZE_PAIRS = 12;
+export const DIFFICULTY_CONFIG: Record<DifficultyLevel, { label: string; pairs: number; colsMd: string; colsBase: string }> = {
+  easy: { 
+    label: 'Easy', 
+    pairs: 3, 
+    colsBase: 'grid-cols-2', // Mobile: 2 cols (3 rows)
+    colsMd: 'grid-cols-3'    // Desktop: 3 cols (2 rows)
+  },
+  medium: { 
+    label: 'Medium', 
+    pairs: 6, 
+    colsBase: 'grid-cols-3', // Mobile: 3 cols (4 rows)
+    colsMd: 'grid-cols-4'    // Desktop: 4 cols (3 rows)
+  },
+  hard: { 
+    label: 'Hard', 
+    pairs: 12, 
+    colsBase: 'grid-cols-4', // Mobile: 4 cols (6 rows)
+    colsMd: 'grid-cols-6'    // Desktop: 6 cols (4 rows)
+  },
+};

@@ -17,3 +17,5 @@ export enum GameStatus {
   PLAYING,
   WON,
 }
+
+export type DifficultyLevel = 'easy' | 'medium' | 'hard';

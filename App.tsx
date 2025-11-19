@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { COLORS, GRID_SIZE_PAIRS } from './constants';
-import { Tile as TileType, GameStatus } from './types';
+import { COLORS, DIFFICULTY_CONFIG } from './constants';
+import { Tile as TileType, GameStatus, DifficultyLevel } from './types';
 import { Tile } from './components/Tile';
 import { WinnerModal } from './components/WinnerModal';
 import { playColorName, preloadColorsAudio, playSFX } from './services/geminiService';
@@ -22,6 +22,9 @@ export default function App() {
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.IDLE);
   const [isProcessing, setIsProcessing] = useState(false);
   
+  // New State: Difficulty
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>('hard');
+  
   // Stats
   const [score, setScore] = useState(0);
   const [moves, setMoves] = useState(0);
@@ -29,7 +32,10 @@ export default function App() {
   // Initialize Game
   const startGame = useCallback(() => {
     playSFX('click');
-    const shuffledColors = shuffleArray(COLORS).slice(0, GRID_SIZE_PAIRS);
+    
+    const config = DIFFICULTY_CONFIG[difficulty];
+    // Slice colors based on difficulty pairs
+    const shuffledColors = shuffleArray(COLORS).slice(0, config.pairs);
     
     // Preload audio
     const colorNamesToPreload = shuffledColors.map(c => c.name);
@@ -58,8 +64,9 @@ export default function App() {
     setScore(0);
     setMoves(0);
     setIsProcessing(false);
-  }, []);
+  }, [difficulty]);
 
+  // Restart when difficulty changes
   useEffect(() => {
     startGame();
   }, [startGame]);
@@ -171,8 +178,23 @@ export default function App() {
               style={{ WebkitTextStroke: '2px white' }}>
             ColorSpeak
           </h1>
-          <div className="bg-[#FFD93D] text-[#6d4c41] px-4 py-1 rounded-full inline-block mt-1 font-bold border-2 border-white shadow-sm rotate-[-2deg] text-sm md:text-base">
-            Find the pairs!
+          
+          {/* Difficulty Switcher */}
+          <div className="flex bg-white/50 p-1 rounded-full backdrop-blur-sm mt-2 shadow-sm border-2 border-white">
+            {(['easy', 'medium', 'hard'] as DifficultyLevel[]).map((level) => (
+              <button
+                key={level}
+                onClick={() => setDifficulty(level)}
+                className={`
+                  px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all
+                  ${difficulty === level 
+                    ? 'bg-[#FFD93D] text-[#6d4c41] shadow-sm scale-105' 
+                    : 'text-gray-500 hover:bg-white/50'}
+                `}
+              >
+                {DIFFICULTY_CONFIG[level].label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -184,7 +206,7 @@ export default function App() {
               <div className="text-2xl md:text-3xl font-black text-[#4ECDC4]">{score}</div>
            </div>
 
-           {/* Restart Button (Moved here) */}
+           {/* Restart Button */}
            <button
               onClick={startGame}
               className="
@@ -210,26 +232,27 @@ export default function App() {
       </header>
 
       {/* Game Grid */}
-      <main className="w-full max-w-3xl relative z-10 mb-8">
-        {/* Mobile: 4 cols (fitting 24 tiles in 6 rows) is better than 3 cols (8 rows) for reducing scroll */}
-        <div className="grid grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4 px-2">
+      <main className="w-full max-w-3xl relative z-10 mb-8 flex justify-center">
+        <div className={`
+          grid gap-2 sm:gap-3 md:gap-4 px-2 transition-all duration-300
+          ${DIFFICULTY_CONFIG[difficulty].colsBase} 
+          md:${DIFFICULTY_CONFIG[difficulty].colsMd}
+        `}>
           {tiles.map(tile => {
             const colorDef = COLORS.find(c => c.id === tile.colorId);
             if (!colorDef) return null;
             return (
-              <Tile 
-                key={tile.id} 
-                tile={tile} 
-                colorDef={colorDef} 
-                onClick={handleTileClick}
-              />
+              <div key={tile.id} className={difficulty === 'easy' ? 'w-32 md:w-40' : ''}>
+                <Tile 
+                  tile={tile} 
+                  colorDef={colorDef} 
+                  onClick={handleTileClick}
+                />
+              </div>
             );
           })}
         </div>
       </main>
-
-      {/* Controls (Floating Action Button style) - REMOVED */}
-
 
       {/* Win Modal */}
       {gameStatus === GameStatus.WON && (
