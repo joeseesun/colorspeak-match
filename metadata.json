@@ -1,0 +1,5 @@
+{
+  "name": "ColorSpeak Match",
+  "description": "A vibrant color matching game where matching pairs triggers the Gemini API to pronounce the color name in English.",
+  "requestFramePermissions": []
+}
