@@ -48,7 +48,17 @@ Since the audio is now pre-generated, you **do not** need to set any environment
 2. **Import in Vercel**.
 3. **Deploy**.
 
-That's it! The app will serve the audio files directly.
+### Troubleshooting: "Deployment Protected" / Login Required
+
+If your Vercel link asks for a login, it means "Deployment Protection" is enabled. To fix this:
+
+1. Go to your project dashboard on Vercel.
+2. Click **Settings** (top menu).
+3. Click **Deployment Protection** (left menu).
+4. Find **Vercel Authentication** and set it to **Disabled**.
+5. Click **Save**.
+
+Now your link should be public!
 
 ## Technologies
 
