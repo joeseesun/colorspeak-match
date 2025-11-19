@@ -235,6 +235,7 @@ export default function App() {
       <main className="w-full max-w-3xl relative z-10 mb-8 flex justify-center">
         <div className={`
           grid gap-2 sm:gap-3 md:gap-4 px-2 transition-all duration-300
+          ${difficulty === 'easy' ? 'w-auto' : 'w-full'}
           ${DIFFICULTY_CONFIG[difficulty].colsBase} 
           md:${DIFFICULTY_CONFIG[difficulty].colsMd}
         `}>
@@ -242,7 +243,7 @@ export default function App() {
             const colorDef = COLORS.find(c => c.id === tile.colorId);
             if (!colorDef) return null;
             return (
-              <div key={tile.id} className={difficulty === 'easy' ? 'w-32 md:w-40' : ''}>
+              <div key={tile.id} className={difficulty === 'easy' ? 'w-32 md:w-40' : 'w-full'}>
                 <Tile 
                   tile={tile} 
                   colorDef={colorDef} 
