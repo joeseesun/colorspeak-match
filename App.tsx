@@ -165,33 +165,54 @@ export default function App() {
       <div className="absolute top-20 right-[-20px] w-40 h-24 bg-white rounded-full opacity-60 animate-bounce-gentle" style={{animationDelay: '1s'}}></div>
 
       {/* Header & Stats */}
-      <header className="w-full max-w-3xl flex flex-col items-center justify-center mb-8 gap-6 relative z-10">
+      <header className="w-full max-w-3xl flex flex-col items-center justify-center mb-6 gap-4 relative z-10">
         <div className="text-center animate-bounce-gentle">
-          <h1 className="text-5xl md:text-6xl font-black text-[#FF6B6B] tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)]"
+          <h1 className="text-4xl md:text-6xl font-black text-[#FF6B6B] tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)]"
               style={{ WebkitTextStroke: '2px white' }}>
             ColorSpeak
           </h1>
-          <div className="bg-[#FFD93D] text-[#6d4c41] px-4 py-1 rounded-full inline-block mt-2 font-bold border-2 border-white shadow-sm rotate-[-2deg]">
+          <div className="bg-[#FFD93D] text-[#6d4c41] px-4 py-1 rounded-full inline-block mt-1 font-bold border-2 border-white shadow-sm rotate-[-2deg] text-sm md:text-base">
             Find the pairs!
           </div>
         </div>
 
-        {/* Scoreboard - Bubble Style */}
-        <div className="flex gap-4 md:gap-8">
-           <div className="bg-white border-4 border-[#4ECDC4] rounded-[2rem] px-6 py-2 min-w-[110px] text-center shadow-[0_4px_0_#2ab7ca]">
-              <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Score</div>
-              <div className="text-3xl font-black text-[#4ECDC4]">{score}</div>
+        {/* Controls Row: Score - Restart - Moves */}
+        <div className="flex items-center justify-center gap-3 md:gap-6 w-full flex-wrap">
+           {/* Score */}
+           <div className="bg-white border-4 border-[#4ECDC4] rounded-[1.5rem] px-4 py-1 md:px-6 md:py-2 min-w-[90px] md:min-w-[110px] text-center shadow-[0_4px_0_#2ab7ca]">
+              <div className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider">Score</div>
+              <div className="text-2xl md:text-3xl font-black text-[#4ECDC4]">{score}</div>
            </div>
-           <div className="bg-white border-4 border-[#FF6B6B] rounded-[2rem] px-6 py-2 min-w-[110px] text-center shadow-[0_4px_0_#ee5253]">
-              <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Moves</div>
-              <div className="text-3xl font-black text-[#FF6B6B]">{moves}</div>
+
+           {/* Restart Button (Moved here) */}
+           <button
+              onClick={startGame}
+              className="
+                group px-4 py-2 md:px-6 md:py-3
+                bg-[#FF6B6B] border-4 border-white 
+                text-white font-black text-lg md:text-xl rounded-full 
+                shadow-[0_4px_0_#d32f2f] 
+                active:translate-y-[2px] active:shadow-[0_2px_0_#d32f2f]
+                hover:bg-[#ff5252] hover:scale-105
+                transition-all duration-150 flex items-center gap-2
+              "
+              title="Restart Game"
+            >
+              <span className="text-xl md:text-2xl">↻</span>
+            </button>
+
+           {/* Moves */}
+           <div className="bg-white border-4 border-[#FF6B6B] rounded-[1.5rem] px-4 py-1 md:px-6 md:py-2 min-w-[90px] md:min-w-[110px] text-center shadow-[0_4px_0_#ee5253]">
+              <div className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider">Moves</div>
+              <div className="text-2xl md:text-3xl font-black text-[#FF6B6B]">{moves}</div>
            </div>
         </div>
       </header>
 
       {/* Game Grid */}
-      <main className="w-full max-w-3xl relative z-10 mb-24">
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4">
+      <main className="w-full max-w-3xl relative z-10 mb-8">
+        {/* Mobile: 4 cols (fitting 24 tiles in 6 rows) is better than 3 cols (8 rows) for reducing scroll */}
+        <div className="grid grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4 px-2">
           {tiles.map(tile => {
             const colorDef = COLORS.find(c => c.id === tile.colorId);
             if (!colorDef) return null;
@@ -207,23 +228,8 @@ export default function App() {
         </div>
       </main>
 
-      {/* Controls (Floating Action Button style) */}
-      <div className="fixed bottom-6 z-20">
-        <button
-          onClick={startGame}
-          className="
-            group px-8 py-4 
-            bg-[#FF6B6B] border-4 border-white 
-            text-white font-black text-xl rounded-full 
-            shadow-[0_8px_0_#d32f2f] 
-            active:translate-y-[4px] active:shadow-[0_2px_0_#d32f2f]
-            hover:bg-[#ff5252] hover:scale-105
-            transition-all duration-150 flex items-center gap-3
-          "
-        >
-          <span className="text-2xl">↻</span> RESTART
-        </button>
-      </div>
+      {/* Controls (Floating Action Button style) - REMOVED */}
+
 
       {/* Win Modal */}
       {gameStatus === GameStatus.WON && (
