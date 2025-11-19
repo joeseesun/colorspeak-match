@@ -4,7 +4,7 @@ import { COLORS, DIFFICULTY_CONFIG } from './constants';
 import { Tile as TileType, GameStatus, DifficultyLevel } from './types';
 import { Tile } from './components/Tile';
 import { WinnerModal } from './components/WinnerModal';
-import { playColorName, preloadColorsAudio, playSFX } from './services/geminiService';
+import { playColorName, preloadColorsAudio, playSFX, resumeAudioContext } from './services/geminiService';
 
 // Helper to shuffle array
 function shuffleArray<T>(array: T[]): T[] {
@@ -25,13 +25,18 @@ export default function App() {
   // New State: Difficulty
   const [difficulty, setDifficulty] = useState<DifficultyLevel>('hard');
   
+  // New State: Has User Interacted? (For Audio Context)
+  const [hasInteracted, setHasInteracted] = useState(false);
+  
   // Stats
   const [score, setScore] = useState(0);
   const [moves, setMoves] = useState(0);
 
   // Initialize Game
   const startGame = useCallback(() => {
-    playSFX('click');
+    if (hasInteracted) {
+        playSFX('click');
+    }
     
     const config = DIFFICULTY_CONFIG[difficulty];
     // Slice colors based on difficulty pairs
@@ -70,6 +75,13 @@ export default function App() {
   useEffect(() => {
     startGame();
   }, [startGame]);
+
+  // Initial Start Screen Handler
+  const handleStartGame = async () => {
+    await resumeAudioContext();
+    setHasInteracted(true);
+    playSFX('click');
+  };
 
   const handleTileClick = async (clickedTile: TileType) => {
     // Block interaction if processing or invalid tile

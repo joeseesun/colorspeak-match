@@ -20,6 +20,8 @@ export const Tile: React.FC<TileProps> = ({ tile, colorDef, onClick }) => {
         group perspective-1000 w-full aspect-square 
         transition-all duration-100 ease-out
         ${matchedStyle}
+        /* Force hardware acceleration to prevent flicker */
+        transform-gpu
       `} 
       onClick={() => onClick(tile)}
     >
@@ -31,7 +33,17 @@ export const Tile: React.FC<TileProps> = ({ tile, colorDef, onClick }) => {
         `}
       >
         {/* Card Back (Face Down) */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-[2rem] shadow-[0_6px_0_#E0E0E0] overflow-hidden border-4 border-white bg-white">
+        {/* Fix: Added explicit z-index management and opacity toggle hack for Safari */}
+        <div 
+          className={`
+            absolute inset-0 w-full h-full backface-hidden 
+            rounded-[2rem] shadow-[0_6px_0_#E0E0E0] overflow-hidden 
+            border-4 border-white bg-white
+            /* Hack: Hide back face immediately when flipped to prevent bleed-through */
+            ${isRevealed ? 'invisible delay-150' : 'visible'}
+          `}
+          style={{ WebkitBackfaceVisibility: 'hidden' }}
+        >
           <div className="w-full h-full bg-[#4ECDC4] flex items-center justify-center relative overflow-hidden">
             {/* Cute Pattern */}
             <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle,_#fff_3px,_transparent_3px)] bg-[length:16px_16px]"></div>
@@ -44,16 +56,14 @@ export const Tile: React.FC<TileProps> = ({ tile, colorDef, onClick }) => {
         {/* Card Front (Face Up / Color) */}
         <div 
           className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-[2rem] shadow-[0_6px_0_rgba(0,0,0,0.1)] overflow-hidden border-4 border-white relative"
-          style={{ backgroundColor: colorDef.hex }}
+          style={{ 
+            backgroundColor: colorDef.hex,
+            WebkitBackfaceVisibility: 'hidden'
+          }}
         >
           {/* Optimized Natural Highlight */}
-          {/* Top curved gloss with gradient fade */}
           <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-[rgba(255,255,255,0.4)] to-transparent rounded-t-[1.5rem] pointer-events-none" />
-          
-          {/* Subtle rim light at the bottom for 3D volume feel */}
           <div className="absolute bottom-0 left-4 right-4 h-[20%] bg-gradient-to-t from-[rgba(0,0,0,0.1)] to-transparent rounded-b-[1.5rem] pointer-events-none" />
-
-          {/* Small crisp highlight ellipse for "plastic" feel */}
           <div className="absolute top-3 right-3 w-3 h-2 bg-white opacity-40 rounded-full transform rotate-[-20deg] blur-[1px] pointer-events-none" />
           
           <div className="absolute inset-0 flex items-center justify-center z-10">

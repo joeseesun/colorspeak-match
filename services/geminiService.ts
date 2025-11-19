@@ -3,16 +3,21 @@
 let audioContext: AudioContext | null = null;
 const audioCache: Map<string, AudioBuffer> = new Map();
 
-const getAudioContext = () => {
+// Exported for external resume call (e.g. user gesture)
+export const getAudioContext = () => {
   if (!audioContext) {
     audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
       sampleRate: 24000,
     });
   }
-  if (audioContext.state === 'suspended') {
-    audioContext.resume();
-  }
   return audioContext;
+};
+
+export const resumeAudioContext = async () => {
+  const ctx = getAudioContext();
+  if (ctx.state === 'suspended') {
+    await ctx.resume();
+  }
 };
 
 // Fetch audio from static files
@@ -70,6 +75,15 @@ export const preloadColorsAudio = (colorNames: string[]) => {
 // Play audio immediately from cache, or fetch if missing
 export const playColorName = async (text: string): Promise<void> => {
   const ctx = getAudioContext();
+  
+  // Auto-resume context if it's suspended (handles mobile autoplay policy if triggered by touch)
+  if (ctx.state === 'suspended') {
+    try {
+      await ctx.resume();
+    } catch (e) {
+      console.warn('Could not resume audio context', e);
+    }
+  }
 
   if (audioCache.has(text)) {
     playBuffer(ctx, audioCache.get(text)!);
@@ -98,6 +112,12 @@ type SoundType = 'click' | 'match' | 'mismatch' | 'win';
 
 export const playSFX = (type: SoundType) => {
   const ctx = getAudioContext();
+  
+  // Resume if suspended (auto-play policy)
+  if (ctx.state === 'suspended') {
+      ctx.resume();
+  }
+
   const now = ctx.currentTime;
 
   // Helper for volume envelope
